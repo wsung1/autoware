@@ -158,7 +158,8 @@ void AutowareJoyControllerNode::onJoy(const sensor_msgs::msg::Joy::ConstSharedPt
     joy_ = std::make_shared<const P65JoyConverter>(*msg);
   }
 
-  if (joy_->shift_up() || joy_->shift_down() || joy_->shift_drive() || joy_->shift_reverse()) {
+  //if (joy_->shift_up() || joy_->shift_down() || joy_->shift_drive() || joy_->shift_reverse()) {
+  if (joy_->shift_up() || joy_->shift_down()) {  
     publishShift();
   }
 
