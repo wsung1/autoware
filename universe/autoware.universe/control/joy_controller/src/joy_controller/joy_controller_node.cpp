@@ -48,7 +48,8 @@ GearShiftType getUpperShift(const GearShiftType & shift)
     return GearShift::DRIVE;
   }
   if (shift == GearShift::DRIVE) {
-    return GearShift::LOW;
+    //return GearShift::LOW;
+    return GearShift::DRIVE;
   }
   if (shift == GearShift::LOW) {
     return GearShift::LOW;
