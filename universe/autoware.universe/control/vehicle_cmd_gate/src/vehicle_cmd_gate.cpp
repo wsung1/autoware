@@ -449,6 +449,9 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   vehicle_cmd_emergency.emergency = (use_emergency_handling_ && is_system_emergency_);
   vehicle_cmd_emergency.stamp = filtered_commands.control.stamp;
 
+  filtered_commands.control.lateral.steering_tire_angle = commands.control.lateral.steering_tire_angle;
+  filtered_commands.control.lateral.steering_tire_rotation_rate = commands.control.lateral.steering_tire_rotation_rate;
+
   // Publish commands
   vehicle_cmd_emergency_pub_->publish(vehicle_cmd_emergency);
   control_cmd_pub_->publish(filtered_commands.control);
