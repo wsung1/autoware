@@ -82,7 +82,8 @@ private:
   bool R2() const { return j_.buttons.at(6); }
   bool Share() const { return j_.buttons.at(8); }
   bool Options() const { return j_.buttons.at(9); }
-  bool PS() const { return j_.buttons.at(24); }
+  //bool PS() const { return j_.buttons.at(24); }
+  bool PS() const { return j_.buttons.at(12); }
 
   const sensor_msgs::msg::Joy j_;
 
