@@ -11,7 +11,7 @@
     <push-ros-namespace namespace="lidar"/>
 
     <group>
-      <push-ros-namespace namespace="top"/> <!-- TO-DO -->
+      <push-ros-namespace namespace="front_top"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLS128.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_top"/>
@@ -25,9 +25,9 @@
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
     </group>
-    <!--
+    
     <group>
-      <push-ros-namespace namespace="left"/>
+      <push-ros-namespace namespace="rear_top"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="5.0"/>
         <arg name="sensor_frame" value="velodyne_left"/>
@@ -43,7 +43,7 @@
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
     </group>
-
+    <!--
     <group>
       <push-ros-namespace namespace="right"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
