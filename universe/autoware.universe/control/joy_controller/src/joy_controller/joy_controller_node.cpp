@@ -219,6 +219,7 @@ bool AutowareJoyControllerNode::isDataReady()
   }
 
   // Twist
+  /*
   {
     if (!twist_) {
       RCLCPP_WARN_THROTTLE(
@@ -236,7 +237,7 @@ bool AutowareJoyControllerNode::isDataReady()
       return false;
     }
   }
-
+  */
   return true;
 }
 
@@ -245,8 +246,8 @@ void AutowareJoyControllerNode::onTimer()
   if (!isDataReady()) {
     return;
   }
-
-  publishControlCommand();
+  
+  //publishControlCommand();
   publishExternalControlCommand();
   publishHeartbeat();
 }
@@ -292,11 +293,10 @@ void AutowareJoyControllerNode::publishExternalControlCommand()
   cmd_stamped.stamp = this->now();
   {
     auto & cmd = cmd_stamped.control;
-
     cmd.steering_angle = steer_ratio_ * joy_->steer();
     cmd.steering_angle_velocity = steering_angle_velocity_;
     cmd.throttle =
-      accel_ratio_ * calcMapping(static_cast<double>(joy_->accel()), accel_sensitivity_);
+      accel_ratio_ * calcMapping(static_cast<double>(joy_->accel()), accel_sensitivity_); 
     cmd.brake = brake_ratio_ * calcMapping(static_cast<double>(joy_->brake()), brake_sensitivity_);
   }
 
