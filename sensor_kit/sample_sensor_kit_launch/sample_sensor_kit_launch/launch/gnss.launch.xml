@@ -15,6 +15,7 @@
       <node pkg="ublox_gps" name="ublox" exec="ublox_gps_node" if="$(var launch_driver)" respawn="true" respawn_delay="1.0">
         <remap from="~/fix" to="~/nav_sat_fix"/>
         <param from="$(find-pkg-share ublox_gps)/c94_f9p_rover.yaml"/>
+        <param name="device" value="/dev/ttyGNSS"/>
       </node>
     </group>
 
