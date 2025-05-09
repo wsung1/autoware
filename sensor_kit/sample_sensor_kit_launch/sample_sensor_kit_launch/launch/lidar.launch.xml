@@ -12,7 +12,7 @@
 
     <group>
       <push-ros-namespace namespace="front_top"/>
-      <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLS128.launch.xml">
+      <include file="$(find-pkg-share common_sensor_launch)/launch/Pandar64.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_top"/>
         <arg name="sensor_ip" value="192.168.1.201"/>
@@ -28,7 +28,7 @@
     
     <group>
       <push-ros-namespace namespace="rear_top"/>
-      <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
+      <include file="$(find-pkg-share common_sensor_launch)/launch/Pandar40P.launch.xml">
         <arg name="max_range" value="5.0"/>
         <arg name="sensor_frame" value="velodyne_left"/>
         <arg name="sensor_ip" value="192.168.1.202"/>
@@ -43,10 +43,10 @@
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
     </group>
-    <!--
+    
     <group>
-      <push-ros-namespace namespace="right"/>
-      <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
+      <push-ros-namespace namespace="front_mid"/>
+      <include file="$(find-pkg-share common_sensor_launch)/launch/PandarXT.launch.xml">
         <arg name="max_range" value="5.0"/>
         <arg name="sensor_frame" value="velodyne_right"/>
         <arg name="sensor_ip" value="192.168.1.203"/>
@@ -61,7 +61,7 @@
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
     </group>
-
+    <!--
     <group>
       <push-ros-namespace namespace="rear"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
