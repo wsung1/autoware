@@ -36,11 +36,11 @@ ShiftDecider::ShiftDecider(const rclcpp::NodeOptions & node_options)
     create_publisher<autoware_auto_vehicle_msgs::msg::GearCommand>("output/gear_cmd", durable_qos);
   sub_control_cmd_ = create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
     "input/control_cmd", queue_size, std::bind(&ShiftDecider::onControlCmd, this, _1));
-  sub_autoware_state_ = create_subscription<autoware_auto_system_msgs::msg::AutowareState>(
-    "input/state", queue_size, std::bind(&ShiftDecider::onAutowareState, this, _1));
+  sub_autoware_state_ = create_subscription<autoware_adapi_v1_msgs::msg::OperationModeState>(
+    "/control/vehicle_cmd_gate/operation_mode", queue_size, std::bind(&ShiftDecider::onAutowareState, this, _1));
   sub_current_gear_ = create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
     "input/current_gear", queue_size, std::bind(&ShiftDecider::onCurrentGear, this, _1));
-
+    
   initTimer(0.1);
 }
 
@@ -50,7 +50,7 @@ void ShiftDecider::onControlCmd(
   control_cmd_ = msg;
 }
 
-void ShiftDecider::onAutowareState(autoware_auto_system_msgs::msg::AutowareState::SharedPtr msg)
+void ShiftDecider::onAutowareState(autoware_adapi_v1_msgs::msg::OperationModeState::SharedPtr msg)
 {
   autoware_state_ = msg;
 }
@@ -72,12 +72,12 @@ void ShiftDecider::onTimer()
 
 void ShiftDecider::updateCurrentShiftCmd()
 {
-  using autoware_auto_system_msgs::msg::AutowareState;
+  using autoware_adapi_v1_msgs::msg::OperationModeState;
   using autoware_auto_vehicle_msgs::msg::GearCommand;
 
   shift_cmd_.stamp = now();
   static constexpr double vel_threshold = 0.01;  // to prevent chattering
-  if (autoware_state_->state == AutowareState::DRIVING) {
+  if (autoware_state_->mode == OperationModeState::AUTONOMOUS) {
     if (control_cmd_->longitudinal.speed > vel_threshold) {
       shift_cmd_.command = GearCommand::DRIVE;
     } else if (control_cmd_->longitudinal.speed < -vel_threshold) {
@@ -87,8 +87,8 @@ void ShiftDecider::updateCurrentShiftCmd()
     }
   } else {
     if (
-      (autoware_state_->state == AutowareState::ARRIVED_GOAL ||
-       autoware_state_->state == AutowareState::WAITING_FOR_ROUTE) &&
+      (autoware_state_->mode == OperationModeState::UNKNOWN ||
+       autoware_state_->mode == OperationModeState::STOP) &&
       park_on_goal_) {
       shift_cmd_.command = GearCommand::PARK;
     } else {
