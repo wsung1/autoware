@@ -18,7 +18,6 @@
 #include <lanelet2_extension/utility/query.hpp>
 #include <lanelet2_extension/utility/route_checker.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
-
 #include <autoware_adapi_v1_msgs/srv/set_route.hpp>
 #include <autoware_adapi_v1_msgs/srv/set_route_points.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
@@ -106,6 +105,10 @@ MissionPlanner::MissionPlanner(const rclcpp::NodeOptions & options)
   sub_modified_goal_ = create_subscription<PoseWithUuidStamped>(
     "input/modified_goal", durable_qos,
     std::bind(&MissionPlanner::on_modified_goal, this, std::placeholders::_1));
+
+  sub_door_status_ = create_subscription<std_msgs::msg::UInt8>(
+    "/can_message_sender/door_status", rclcpp::QoS(10),
+    std::bind(&MissionPlanner::on_door, this, std::placeholders::_1));
 
   pub_marker_ = create_publisher<MarkerArray>("debug/route_marker", durable_qos);
 
@@ -308,6 +311,14 @@ LaneletRoute MissionPlanner::create_route(const SetRoutePoints::Service::Request
 
 void MissionPlanner::change_state(RouteState::Message::_state_type state)
 {
+  // ARRIVED -> UNSET 전환 시도할 때, door_state_가 1~4이면 상태 변경 막기
+  if (state_.state == RouteState::Message::ARRIVED &&
+      state == RouteState::Message::UNSET &&
+      door_state_ < 5) {
+    RCLCPP_INFO(get_logger(), "Blocking state update (ARRIVED->UNSET) due to door_state_: %d", door_state_);
+    return;
+  }
+
   state_.stamp = now();
   state_.state = state;
   pub_state_->publish(state_);
@@ -897,6 +908,15 @@ bool MissionPlanner::check_reroute_safety(
     "reroute is not safe.",
     accumulated_length, safety_length);
   return false;
+}
+
+void MissionPlanner::on_door(const std_msgs::msg::UInt8::ConstSharedPtr msg)
+{
+  door_state_ = msg->data;
+  RCLCPP_DEBUG(get_logger(), "Received door status: %d", door_state_);
+  if (door_state_ == 5 && state_.state == RouteState::Message::ARRIVED) {
+    change_state(RouteState::Message::UNSET);
+  }
 }
 }  // namespace mission_planner
 

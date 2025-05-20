@@ -30,6 +30,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tier4_planning_msgs/msg/reroute_availability.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <std_msgs/msg/u_int8.hpp>
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
@@ -73,10 +74,13 @@ private:
   tf2_ros::TransformListener tf_listener_;
   PoseStamped transform_pose(const PoseStamped & input);
 
+  uint8_t door_state_{0};
+
   rclcpp::Subscription<Odometry>::SharedPtr sub_odometry_;
   rclcpp::Subscription<HADMapBin>::SharedPtr sub_vector_map_;
   rclcpp::Subscription<RerouteAvailability>::SharedPtr sub_reroute_availability_;
   rclcpp::Subscription<PoseWithUuidStamped>::SharedPtr sub_modified_goal_;
+  rclcpp::Subscription<std_msgs::msg::UInt8>::SharedPtr sub_door_status_;
 
   Odometry::ConstSharedPtr odometry_;
   HADMapBin::ConstSharedPtr map_ptr_;
@@ -85,6 +89,7 @@ private:
   void on_map(const HADMapBin::ConstSharedPtr msg);
   void on_reroute_availability(const RerouteAvailability::ConstSharedPtr msg);
   void on_modified_goal(const PoseWithUuidStamped::ConstSharedPtr msg);
+  void on_door(const std_msgs::msg::UInt8::ConstSharedPtr msg);
 
   rclcpp::TimerBase::SharedPtr data_check_timer_;
   void checkInitialization();
