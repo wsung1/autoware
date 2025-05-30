@@ -521,7 +521,7 @@ boost::optional<CrosswalkEdgePoints> isReachableCrosswalkEdgePoints(
 bool hasPotentialToReach(
   const TrackedObject & object, const Eigen::Vector2d & center_point,
   const Eigen::Vector2d & right_point, const Eigen::Vector2d & left_point,
-  const double time_horizon, const double min_object_vel,
+  [[maybe_unused]]const double time_horizon, const double min_object_vel,
   const double max_crosswalk_user_delta_yaw_threshold_for_lanelet)
 {
   const auto & obj_pos = object.kinematics.pose_with_covariance.pose.position;
@@ -570,12 +570,12 @@ bool hasPotentialToReach(
     }
     return 0.0;
   }();
-  const auto heading_for_crosswalk = std::abs(pedestrian_vel_angle_against_crosswalk) <
+  [[maybe_unused]]const auto heading_for_crosswalk = std::abs(pedestrian_vel_angle_against_crosswalk) <
                                      max_crosswalk_user_delta_yaw_threshold_for_lanelet;
-  const auto reachable = std::hypot(center_point.x() - obj_pos.x, center_point.y() - obj_pos.y) <
-                         velocity * time_horizon;
 
-  if (reachable && (heading_for_crosswalk || is_stop_object)) {
+  const auto reachable = std::hypot(center_point.x() - obj_pos.x, center_point.y() - obj_pos.y) < velocity * 1.3;
+
+  if (reachable && !is_stop_object) {
     return true;
   }
 
@@ -1083,21 +1083,28 @@ PredictedObject MapBasedPredictionNode::getPredictedObjectAsCrosswalkUser(
   // If the object is in the crosswalk, generate path to the crosswalk edge
   if (crossing_crosswalk) {
     const auto edge_points = getCrosswalkEdgePoints(crossing_crosswalk.get());
+    //HJK_250521_D
+    const double front_to_back = std::atan2(edge_points.back_center_point.y() - edge_points.front_center_point.y(), 
+      edge_points.back_center_point.x() - edge_points.front_center_point.x());
+    const double back_to_front = std::atan2(edge_points.front_center_point.y() - edge_points.back_center_point.y(), 
+      edge_points.front_center_point.x() - edge_points.back_center_point.x());
 
-    if (hasPotentialToReach(
-          object, edge_points.front_center_point, edge_points.front_right_point,
-          edge_points.front_left_point, std::numeric_limits<double>::max(),
-          min_crosswalk_user_velocity_, max_crosswalk_user_delta_yaw_threshold_for_lanelet_)) {
+    const std::pair<double, double> obj_p1 = {predicted_object.kinematics.predicted_paths[0].path[0].position.x, 
+      predicted_object.kinematics.predicted_paths[0].path[0].position.y};
+    const std::pair<double, double> obj_p2 = {predicted_object.kinematics.predicted_paths[0].path.back().position.x, 
+      predicted_object.kinematics.predicted_paths[0].path.back().position.y};
+
+    const double obj_yaw_from_path = std::atan2(obj_p2.second - obj_p1.second, obj_p2.first - obj_p1.first);
+
+    if(std::abs(obj_yaw_from_path - back_to_front) < 0.3)
+    {
       PredictedPath predicted_path =
         path_generator_->generatePathToTargetPoint(object, edge_points.front_center_point);
       predicted_path.confidence = 1.0;
       predicted_object.kinematics.predicted_paths.push_back(predicted_path);
     }
-
-    if (hasPotentialToReach(
-          object, edge_points.back_center_point, edge_points.back_right_point,
-          edge_points.back_left_point, std::numeric_limits<double>::max(),
-          min_crosswalk_user_velocity_, max_crosswalk_user_delta_yaw_threshold_for_lanelet_)) {
+    else if(std::abs(obj_yaw_from_path - front_to_back) < 0.3)
+    {
       PredictedPath predicted_path =
         path_generator_->generatePathToTargetPoint(object, edge_points.back_center_point);
       predicted_path.confidence = 1.0;

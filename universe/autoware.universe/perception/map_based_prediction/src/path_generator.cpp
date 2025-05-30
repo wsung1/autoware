@@ -163,7 +163,7 @@ PredictedPath PathGenerator::generateStraightPath(const TrackedObject & object) 
   const auto & object_pose = object.kinematics.pose_with_covariance.pose;
   const auto & object_twist = object.kinematics.twist_with_covariance.twist;
   const double ep = 0.001;
-  const double duration = time_horizon_ + ep;
+  const double duration = (time_horizon_ * 0.4) + ep;
 
   PredictedPath path;
   path.time_step = rclcpp::Duration::from_seconds(sampling_time_interval_);
