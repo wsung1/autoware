@@ -140,6 +140,21 @@ void AutowareAutomaticGoalPanel::onInitialize()
     "~/automatic_goal/goal", 5,
     std::bind(&AutowareAutomaticGoalPanel::onAppendGoal, this, std::placeholders::_1));
   initCommunication(raw_node_.get());
+
+  // 자동으로 goals_list.yaml 파일 로드
+  std::string default_file_path = "/home/sws/Documents/goals_list.yaml";
+  QFileInfo file_info(QString::fromStdString(default_file_path));
+  if (file_info.exists() && file_info.isFile()) {
+    loadGoalsList(default_file_path);
+  } else {
+    showMessageBox("Failed to find file: " + QString::fromStdString(default_file_path));
+  }
+
+  // Loop list 버튼을 기본적으로 활성화
+  loop_list_btn_ptr_->setChecked(true);
+  onToggleLoopList(true);
+
+  updateGUI(); // GUI 업데이트 추가 #KMS_250527
 }
 
 void AutowareAutomaticGoalPanel::onToggleLoopList(bool checked)
@@ -227,7 +242,8 @@ void AutowareAutomaticGoalPanel::onClickRemove()
 void AutowareAutomaticGoalPanel::onClickLoadListFromFile()
 {
   QString file_name = QFileDialog::getOpenFileName(
-    this, tr("Open File with GoalsList"), "/tmp", tr("Goal lists (*.yaml)"));
+    //this, tr("Open File with GoalsList"), "/tmp", tr("Goal lists (*.yaml)"));
+    this, tr("Open File with GoalsList"), "/home/sws/Documents/", tr("goals_list.yaml"));
   if (file_name.count() > 0) loadGoalsList(file_name.toStdString());
 }
 
