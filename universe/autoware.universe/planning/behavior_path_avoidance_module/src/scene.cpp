@@ -137,7 +137,26 @@ bool AvoidanceModule::isExecutionRequested() const
 bool AvoidanceModule::isExecutionReady() const
 {
   DEBUG_PRINT("AVOIDANCE isExecutionReady");
-  return avoid_data_.safe && avoid_data_.comfortable && avoid_data_.valid;
+  const AvoidancePlanningData & data = avoid_data_;
+
+  bool is_stopped = false;
+
+  if(!data.target_objects.empty())
+  {
+    const ObjectData object = data.target_objects.front();
+    const double dist_to_obj = object.longitudinal;
+
+    if(dist_to_obj < 13.0 && getEgoSpeed() < 0.5)
+    {
+      is_stopped = true;
+    }
+  }
+  else
+  {
+    is_stopped = true;
+  }
+  RCLCPP_INFO(rclcpp::get_logger("test"), "%d, %d, %d, %d", avoid_data_.safe, avoid_data_.comfortable, avoid_data_.valid, is_stopped);
+  return avoid_data_.safe && avoid_data_.comfortable && avoid_data_.valid && is_stopped;
 }
 
 bool AvoidanceModule::isSatisfiedSuccessCondition(const AvoidancePlanningData & data) const
