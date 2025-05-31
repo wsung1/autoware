@@ -1064,7 +1064,7 @@ AvoidLineArray ShiftLineGenerator::addReturnShiftLine(
   const auto & arclength_from_ego = data.arclength_from_ego;
 
   const auto nominal_prepare_distance = helper_->getNominalPrepareDistance();
-  const auto nominal_avoid_distance = helper_->getMaxAvoidanceDistance(last_sl.end_shift_length);
+  const auto nominal_avoid_distance = 20.0;
 
   if (arclength_from_ego.empty()) {
     return ret;
@@ -1211,9 +1211,9 @@ AvoidLineArray ShiftLineGenerator::findNewShiftLine(
   };
 
   // check ignore or not.
-  const auto is_ignore_shift = [this](const auto & s) {
-    return std::abs(helper_->getRelativeShiftToPath(s)) < parameters_->lateral_execution_threshold;
-  };
+  // const auto is_ignore_shift = [this](const auto & s) {
+  //   return std::abs(helper_->getRelativeShiftToPath(s)) < parameters_->lateral_execution_threshold;
+  // };
 
   for (size_t i = 0; i < shift_lines.size(); ++i) {
     const auto & candidate = shift_lines.at(i);
@@ -1222,10 +1222,9 @@ AvoidLineArray ShiftLineGenerator::findNewShiftLine(
     if (candidate.start_longitudinal < helper_->getMinimumPrepareDistance()) {
       break;
     }
-
-    if (is_ignore_shift(candidate)) {
-      continue;
-    }
+    // if (is_ignore_shift(candidate)) {
+    //   continue;
+    // }
 
     if (perManeuver(parameters_->policy_approval)) {
       debug.step4_new_shift_line = shift_lines;
