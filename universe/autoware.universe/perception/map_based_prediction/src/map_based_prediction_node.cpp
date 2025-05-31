@@ -1083,7 +1083,7 @@ PredictedObject MapBasedPredictionNode::getPredictedObjectAsCrosswalkUser(
   // If the object is in the crosswalk, generate path to the crosswalk edge
   if (crossing_crosswalk) {
     const auto edge_points = getCrosswalkEdgePoints(crossing_crosswalk.get());
-    //HJK_250521_D
+
     const double front_to_back = std::atan2(edge_points.back_center_point.y() - edge_points.front_center_point.y(), 
       edge_points.back_center_point.x() - edge_points.front_center_point.x());
     const double back_to_front = std::atan2(edge_points.front_center_point.y() - edge_points.back_center_point.y(), 
